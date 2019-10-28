@@ -29,7 +29,7 @@ It is using the correlation coefficient (normalized cross-correlation of the rec
 
 #### Output:
 Result files are placed in the folder indicated by the user.<br/>
-A text file with time points, amplitudes and 20-80% rise-times is generated for further processing.<br/>
+A text file with time points, amplitudes and 20-80% rise/decay-times is generated for further processing.<br/>
 You may want to tweak the plots to your needs.<br/>
 <b>internal_output</b> is an array/list intentionally left free for the user to export anything they may want in their code after calling the function.<br/>
 All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs. Search for current, pA, I in here and change it to your measured quantity and units.
