@@ -209,6 +209,10 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     rt20 = []
     rt80 = []
     rt2080 = []
+    dt20 = []
+    dt80 = []
+    dt2080 = []
+
     trcampl = []
 
     fulltracesd = npy.std(f_sc_data)
@@ -225,6 +229,10 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         rt20 = []
         rt80 = []
         rt2080 = []
+        dt20 = []
+        dt80 = []
+        dt2080 = []
+
 
         prooffile = open(file_path+'_scan_'+str(npy.round(ccr_th,2))+'.dat', 'wb')
         scan_array = npy.zeros(npy.size(f_sc_data))
@@ -286,6 +294,39 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             rt2080.append((trc80t-trc20t)*1000.0/sampling_rate) ## in ms for 10kHz sampling rate
             trcampl.append(trc100 - trc0)
 
+            #decays
+            
+            tdc0 = trc100
+            tdc0t = trc100t
+            tdc100 = trc0
+            tdc20t = tdc0 
+            tdc80t = tdc0t+200
+            tdc100t = 500
+
+            try:
+                for tdc_k in range(tdc0t,tdc0t+200):
+                    if fscI[tdc_k] >= trc0:
+                        tdc100t = tdc_k
+                        break
+                
+                for tdc_k in range(tdc0t,tdc0t+200):
+                    if fscI[tdc_k] >= tdc0 + 0.20*(tdc100-tdc0):
+                        tdc20t = tdc_k
+                        break
+
+                for tdc_k in range(tdc20t,tdc100t):
+                    if fscI[tdc_k] >= tdc0 + 0.80*(tdc100-tdc0):
+                        tdc80t = tdc_k
+                        break
+            except:
+                print('decay-time not found for event @ t = '+str(evc/ssampling_rate)+ ' s --set to max.')
+                pass
+
+            dt20.append(tdc20t*0.1000)
+            dt80.append(tdc80t*0.1000)
+            dt2080.append((tdc80t-tdc20t)*0.1000) ## in ms for 10kHz sampling rate
+
+
             nevents_ = nevents_ + 1
 
 
@@ -313,7 +354,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         evc = 0
         ev_f= 0
         eventsrecfile = open(file_path+'_events_t_A_rt_'+str(npy.round(ccr_th,2))+'.csv','w')
-        eventsrecfile.write('time (ms);amplitude (pA);rt20-80 (ms)')
+        eventsrecfile.write('time (ms);amplitude (pA);rt20-80 (ms);dt20-80 (ms)')
         eventsrecfile.write('\r')
         try:
             singlesd = (npy.size(f_sc_data)/(npy.size(f_sc_data)-nevents_ * (template_window - 1))) * (fulltracesd - nevents_ * (template_window - 1) * npy.std(linconcat)/npy.size(f_sc_data))
@@ -472,7 +513,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             evc = int(evc)
             scan_array[evc] = -1
             if  cluster_main.count(evc)>0:
-                eventsrecfile.write(str(evc*1000.0/sampling_rate) + ';' + str(trcampl[ev_n]) + ';' + str(rt2080[ev_n])+'\r')
+                eventsrecfile.write(str(evc*1000.0/sampling_rate) + ';' + str(trcampl[ev_n]) + ';' + str(rt2080[ev_n]) + ';' + str(dt2080[ev_n])+'\r')
                 scan_array[evc] = 1
                 ev_f += 1
             ev_n += 1
