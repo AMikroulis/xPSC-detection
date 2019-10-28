@@ -261,22 +261,26 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             trc20t = evc
             trc80t = evc+100
             trc100t = 100
+            try:
+                for trc_k in range(evc,evc+100):
+                    if f_sc_data[trc_k] == trc100:
+                        trc100t = trc_k
+                        break
 
-            for trc_k in range(evc,evc+100):
-                if f_sc_data[trc_k] == trc100:
-                    trc100t = trc_k
-                    break
 
+                for trc_k in range(evc,evc+100):
+                    if f_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
+                        trc20t = trc_k
+                        break
 
-            for trc_k in range(evc,evc+100):
-                if f_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
-                    trc20t = trc_k
-                    break
+                for trc_k in range(trc20t,trc100t):
+                    if f_sc_data[trc_k] <= trc0 + 0.80*(trc100-trc0):
+                        trc80t = trc_k
+                        break
+            except:
+                print('rise-time not found/imprecise for event @ t = '+str(evc/ssampling_rate)+ ' s')
+                pass
 
-            for trc_k in range(trc20t,trc100t):
-                if f_sc_data[trc_k] <= trc0 + 0.80*(trc100-trc0):
-                    trc80t = trc_k
-                    break
             rt20.append(trc20t*1000.0/sampling_rate)
             rt80.append(trc80t*1000.0/sampling_rate)
             rt2080.append((trc80t-trc20t)*1000.0/sampling_rate) ## in ms for 10kHz sampling rate
