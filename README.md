@@ -43,4 +43,4 @@ There is a Gaussian Mixture-based rejection of low-amplitude events. It can be c
 Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes). Keep in mind if low on disk space.<br/>
 MKL-enabled numpy is strongly recommended.<br/>
 Most of the code was initially written with a 10kHz sampling rate in mind. <br/>
-Anaconda versions on Windows 7, 8, 8.1 and 10 run well. Not tested on Linux.<br/>
+Anaconda versions on Windows 10 (and 7) run well. Not tested on Linux.<br/>
