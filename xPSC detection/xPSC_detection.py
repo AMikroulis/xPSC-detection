@@ -212,6 +212,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     dt20 = []
     dt80 = []
     dt2080 = []
+    hw = []
 
     trcampl = []
 
@@ -232,7 +233,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         dt20 = []
         dt80 = []
         dt2080 = []
-
+        hw = []
 
         prooffile = open(file_path+'_scan_'+str(npy.round(ccr_th,2))+'.dat', 'wb')
         scan_array = npy.zeros(npy.size(f_sc_data))
@@ -267,6 +268,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             trc0 = f_sc_data[evc]
             trc100 = npy.min(f_sc_data[evc:evc+100])
             trc20t = evc
+            trc50t = evc
             trc80t = evc+100
             trc100t = 100
             try:
@@ -279,6 +281,11 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
                 for trc_k in range(evc,evc+100):
                     if f_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
                         trc20t = trc_k
+                        break
+
+                for trc_k in range(evc,evc+100):
+                    if fscI[trc_k] <= trc0 + 0.50*(trc100-trc0):
+                        trc50t = trc_k
                         break
 
                 for trc_k in range(trc20t,trc100t):
@@ -300,6 +307,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             tdc0t = trc100t
             tdc100 = trc0
             tdc20t = tdc0 
+            tdc50t = tdc0
             tdc80t = tdc0t+200
             tdc100t = 500
 
@@ -314,6 +322,11 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
                         tdc20t = tdc_k
                         break
 
+                for tdc_k in range(tdc0t,tdc0t+200):
+                    if fscI[tdc_k] >= tdc0 + 0.50*(tdc100-tdc0):
+                        tdc50t = tdc_k
+                        break
+
                 for tdc_k in range(tdc20t,tdc100t):
                     if fscI[tdc_k] >= tdc0 + 0.80*(tdc100-tdc0):
                         tdc80t = tdc_k
@@ -322,10 +335,10 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
                 print('decay-time not found for event @ t = '+str(evc/ssampling_rate)+ ' s --set to max.')
                 pass
 
-            dt20.append(tdc20t*0.1000)
-            dt80.append(tdc80t*0.1000)
-            dt2080.append((tdc80t-tdc20t)*0.1000) ## in ms for 10kHz sampling rate
-
+            dt20.append(tdc20t*1000.0/sampling_rate)
+            dt80.append(tdc80t*1000.0/sampling_rate)
+            dt2080.append((tdc80t-tdc20t)*1000.0/sampling_rate) ## in ms for 10kHz sampling rate
+            hw.append((tdc50t-trc50t)*1000.0/sampling_rate)
 
             nevents_ = nevents_ + 1
 
@@ -354,7 +367,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         evc = 0
         ev_f= 0
         eventsrecfile = open(file_path+'_events_t_A_rt_'+str(npy.round(ccr_th,2))+'.csv','w')
-        eventsrecfile.write('time (ms);amplitude (pA);rt20-80 (ms);dt20-80 (ms)')
+        eventsrecfile.write('time (ms);amplitude (pA);rt20-80 (ms);dt20-80 (ms);hw (ms)')
         eventsrecfile.write('\r')
         try:
             singlesd = (npy.size(f_sc_data)/(npy.size(f_sc_data)-nevents_ * (template_window - 1))) * (fulltracesd - nevents_ * (template_window - 1) * npy.std(linconcat)/npy.size(f_sc_data))
@@ -513,7 +526,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             evc = int(evc)
             scan_array[evc] = -1
             if  cluster_main.count(evc)>0:
-                eventsrecfile.write(str(evc*1000.0/sampling_rate) + ';' + str(trcampl[ev_n]) + ';' + str(rt2080[ev_n]) + ';' + str(dt2080[ev_n])+'\r')
+                eventsrecfile.write(str(evc*1000.0/sampling_rate) + ';' + str(trcampl[ev_n]) + ';' + str(rt2080[ev_n]) + ';' + str(dt2080[ev_n]) + ';' + str(hw[ev_n])+'\r')
                 scan_array[evc] = 1
                 ev_f += 1
             ev_n += 1
