@@ -545,13 +545,13 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     sd3x = sd1x*1.5
 
     plt.clf()
-    plt.semilogy(npy.arange(0.5,1,0.05),(nevents), 'b', npy.arange(0.5,1,0.05),falsepos,'r')
+    plt.semilogy(npy.arange(0.5,1,0.05)[:len(nevents)],(nevents), 'b', npy.arange(0.5,1,0.05)[:len(nevents)],falsepos,'r')
     plt.xlabel('correlation coeff')
     plt.ylabel('# events')
     plt.savefig(file_path+'_xPSC_detection.png')
     
     plt.clf()
-    plt.plot(npy.arange(0.5,1,0.05),amplrange, 'm',npy.arange(0.5,1,0.05),evwvp10,'#808080',npy.arange(0.5,1,0.05),evwvp90,'#808080',npy.arange(0.5,1,0.05),sdrange, '#8020f0',npy.arange(0.5,1,0.05),sd3x, '#401080',npy.arange(0.5,1,0.05),sd1x, 'r.',npy.arange(0.5,1,0.05),evmedian,'#20c0f0') #,npy.arange(0.05,1,0.05),maxrange,'#000000',npy.arange(0.05,1,0.05),minrange, '#000000',
+    plt.plot(npy.arange(0.5,1,0.05)[:len(nevents)],amplrange, 'm',npy.arange(0.5,1,0.05)[:len(nevents)],evwvp10,'#808080',npy.arange(0.5,1,0.05)[:len(nevents)],evwvp90,'#808080',npy.arange(0.5,1,0.05)[:len(nevents)],sdrange, '#8020f0',npy.arange(0.5,1,0.05)[:len(nevents)],sd3x, '#401080',npy.arange(0.5,1,0.05)[:len(nevents)],sd1x, 'r.',npy.arange(0.5,1,0.05)[:len(nevents)],evmedian,'#20c0f0') #,npy.arange(0.05,1,0.05),maxrange,'#000000',npy.arange(0.05,1,0.05),minrange, '#000000',
     plt.xlabel('correlation coeff')
     plt.ylabel('amplitude (pA)')
     plt.savefig(file_path+'_xPSC_descriptives.png')
