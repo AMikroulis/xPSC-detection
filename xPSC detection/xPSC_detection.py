@@ -29,7 +29,8 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     #
     # All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs. Search for current, pA, I in here and change it to your measured quantity and units.
     #
-    # Intel python is strongly recommended for running this (lots of vector work). Newer Windows Anaconda versions work ok too - if you are on linux/mac you're on your own, sry.
+    # Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes). Keep in mind if low on disk space.
+    # MKL-enabled numpy is strongly recommended.
     # 
 
     try:
