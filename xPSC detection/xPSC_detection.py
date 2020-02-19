@@ -294,7 +294,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
                         trc80t = trc_k
                         break
             except:
-                print('rise-time not found/imprecise for event @ t = '+str(evc/ssampling_rate)+ ' s')
+                print('rise-time not found/imprecise for event @ t = '+str(evc/sampling_rate)+ ' s')
                 pass
 
             rt20.append(trc20t*1000.0/sampling_rate)
@@ -333,7 +333,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
                         tdc80t = tdc_k
                         break
             except:
-                print('decay-time not found for event @ t = '+str(evc/ssampling_rate)+ ' s --set to max.')
+                print('decay-time not found for event @ t = '+str(evc/sampling_rate)+ ' s --set to max.')
                 pass
 
             dt20.append(tdc20t*1000.0/sampling_rate)
