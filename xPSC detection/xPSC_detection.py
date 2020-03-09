@@ -181,7 +181,11 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         plt.clf()
         for l in range(npy.size(fflocpeaks)):
             currentpeak = int(fflocpeaks[l])
-            plt.plot((1000.0/sampling_rate)*sampling_rate*t[0:template_window], f_sc_data[currentpeak:currentpeak+template_window])
+            try:
+                plt.plot((1000.0/sampling_rate)*sampling_rate*t[0:template_window], f_sc_data[currentpeak:currentpeak+template_window])
+            except:
+                fflocpeaks = fflocpeaks[:l]
+                break
 
         plt.title('all detected events\ncorr. coeff. > ' + str(ccoeff_cutoff))
         plt.xlabel('time (ms)')
