@@ -311,8 +311,8 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             tdc0 = trc100
             tdc0t = trc100t
             tdc100 = trc0
-            tdc20t = tdc0 
-            tdc50t = tdc0
+            tdc20t = tdc0t 
+            tdc50t = tdc0t
             tdc80t = tdc0t+200
             tdc100t = 500
 
@@ -462,7 +462,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
         gmr = mixture.GaussianMixture(n_components = 2, covariance_type = 'full', means_init = [[cluster_low_mean],[cluster_main_mean]]).fit(npy.reshape(vrampl,(-1,1)))
         if clustering_override == True:
-            clusters = 0 * gmr.predict(npy.reshape(vrampl,(-1,1)))
+            clusters = npy.zeros(npy.size(vrampl), 'int64')
         else:
             clusters = gmr.predict(npy.reshape(vrampl,(-1,1)))
         evc = 0
