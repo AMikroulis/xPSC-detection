@@ -35,7 +35,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
     try:
         mwin = Tk()
-        mwin.minsize(350,200)       # not really needed but I like having it on as a reminder that it's running.
+        mwin.minsize(350,200)
         mwin.title("cc_detection")
         outputfolder = filedialog.askdirectory()
         print(outputfolder)
@@ -47,6 +47,9 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         new_file_path = source_directory + '\\xPSC_results\\' 
         file_path = new_file_path + file_name_base
         print(file_path)
+        mwin.destroy()
+        mwin.quit()
+
     except:
         print('file path error - exiting')
         return 1
