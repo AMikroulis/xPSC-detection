@@ -11,7 +11,7 @@ from tkinter import filedialog
 
 
 
-def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10000.0, min_iei = 15.0, peak_search_interval = 10.0, decay_search_interval = 20.0, D_scale = 3.1250000e-1, filter_kernel = [1], clustering_override = True, internal_output = []):
+def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10000.0, min_iei = 15.0, peak_search_interval = 10.0, decay_search_interval = 20.0, D_scale = 3.1250000e-1, filter_kernel = [1], clustering_override = True, skip_write = False, internal_output = []):
     #
     # data_channel should be an array of 16-bit integers (straight from the digitizer works ok). *can use 32/64bit floats as well, but read D_scale notes below.
     # template should be a floating point or double precision array of a single event size (it should be as precise as possible, averaged events or fitted events preferably).
@@ -28,6 +28,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     # filter_kernel expects (nothing or 0 or) a floating point array of the kernel of a FIR filter. Omitting it will not filter the data (ok, it will filter it but with a [1], which does nothing at all), specifying 0 will make a 400Hz low-pass filter for 10kHz sampling rate.
     # clustering_override = True disables the additional Gaussian mixture classifier for low-amplitude rejection (likely noise) --- keep it set to True if you select events at a later stage with more criteria.
     # 
+    # skip_write = False will output the full recording with an indicator channel. Specify True if you don't need to check, to save space.
     # internal_output is an array/list intentionally left free for the user to export anything they may want in their code after calling the function. 
     #
     # All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs. Search for current, pA, I in here and change it to your measured quantity and units.
@@ -252,7 +253,8 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         dt2080 = []
         hw = []
 
-        prooffile = open(file_path+'_scan_'+str(npy.round(ccr_th,2))+'.dat', 'wb')
+        if skip_write == False:
+            prooffile = open(file_path+'_scan_'+str(npy.round(ccr_th,2))+'.dat', 'wb')
         scan_array = npy.zeros(npy.size(f_sc_data))
 
 
@@ -553,8 +555,9 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             ev_n += 1
 
         eventsrecfile.close()
-        npy.dstack((int_f_sc_data,scan_array)).astype('int16').tofile(prooffile)
-        prooffile.close()
+        if skip_write == False:
+            npy.dstack((int_f_sc_data,scan_array)).astype('int16').tofile(prooffile)
+            prooffile.close()
         
         cc_scan_file = open(file_path+'_'+str(nevents_)+'_raw_ALL_corr_'+str(npy.round(ccr_th,2))+'.dat','wb')
         linconcat.astype('float32').tofile(cc_scan_file)
