@@ -11,19 +11,22 @@ from tkinter import filedialog
 
 
 
-def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10000.0, min_iei = 150, D_scale = 3.1250000e-1, filter_kernel = [1], clustering_override = False, internal_output = []):
+def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10000.0, min_iei = 15.0, peak_search_interval = 10.0, decay_search_interval = 20.0, D_scale = 3.1250000e-1, filter_kernel = [1], clustering_override = True, internal_output = []):
     #
     # data_channel should be an array of 16-bit integers (straight from the digitizer works ok). *can use 32/64bit floats as well, but read D_scale notes below.
     # template should be a floating point or double precision array of a single event size (it should be as precise as possible, averaged events or fitted events preferably).
-    # D_scale for HEKA I channel in pA = 3.125e-1, HEKA V channel in mV = 3.125e-2
+    # (template should start at 0pA --- add a template -= template[0] if needed)
+    # D_scale for HEKA I channel in pA = 3.125e-1 (1pA/mV) ### (amplifier output range (in V)) / 2^(bits per sample)
     #
     # If you have the real numbers already (floating point) in pA, specify D_scale = 0 , so the scaling does not mess up your data
     # 
     # file_namme_base is a base file name. You may want to define this programmatically. Every result file name will start with this.
     # 
     # sampling_rate is sampling rate in Hz (samples / sec). Note that trace and template (and filter kernel, if used) sampling rates should be equal -  or you may get nonsensical results.
-    # min_iei is the smallest latency (in samples) at which discerning distinct, partially overlaid events is possible. Depends on the recording noise level, the sampling rate and shape of the events. Adjust as needed.
+    # min_iei is the smallest latency (in ms) at which discerning distinct, partially overlaid events is possible. Depends on the recording noise level, the sampling rate and shape of the events. Adjust as needed.
+    # peak_search_interval & decay_search_interval are the limits (in ms) to look for peak (from start of matched event) and decay (from peak of matched event).
     # filter_kernel expects (nothing or 0 or) a floating point array of the kernel of a FIR filter. Omitting it will not filter the data (ok, it will filter it but with a [1], which does nothing at all), specifying 0 will make a 400Hz low-pass filter for 10kHz sampling rate.
+    # clustering_override = True disables the additional Gaussian mixture classifier for low-amplitude rejection (likely noise) --- keep it set to True if you select events at a later stage with more criteria.
     # 
     # internal_output is an array/list intentionally left free for the user to export anything they may want in their code after calling the function. 
     #
@@ -134,7 +137,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         localpeaks = ssy.argrelextrema(corr_positive,npy.greater)
         localpeaksampl = corr_positive[localpeaks]
         ccoeff_cutoff = c_cutoff
-        contamination_limit = int(min_iei) #in samples
+        contamination_limit = int(sampling_rate * min_iei / 1000) #in samples
         selpeaks = localpeaksampl>ccoeff_cutoff
 
         scan_number = 1
@@ -224,6 +227,12 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
     trcampl = []
 
+    peak_interval = int(sampling_rate * peak_search_interval / 1000)
+    decay_interval = int(sampling_rate * decay_search_interval / 1000)
+    if decay_interval > (template_window - peak_interval):
+        decay_interval = template_window - peak_interval
+        print('decay time limit set to ' + str(round(decay_interval * 1000 / sampling_rate, 3)) + ' ms (template duration limit)')
+
     fulltracesd = npy.std(f_sc_data)
 
     for ccr_th in npy.arange(0.5,1,0.05):
@@ -274,30 +283,34 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
             
             trc0 = f_sc_data[evc]
-            trc100 = npy.min(f_sc_data[evc:evc+100])
+            if scy.integrate.trapz(template) <= 0 :
+                mf_sc_data = f_sc_data
+            else:
+                mf_sc_data = -f_sc_data
+                trc100 = npy.min(mf_sc_data[evc:evc+100])
             trc20t = evc
             trc50t = evc
-            trc80t = evc+100
-            trc100t = 100
+            trc80t = evc+peak_interval
+            trc100t = peak_interval
             try:
-                for trc_k in range(evc,evc+100):
-                    if f_sc_data[trc_k] == trc100:
+                for trc_k in range(evc,evc+peak_interval):
+                    if mf_sc_data[trc_k] == trc100:
                         trc100t = trc_k
                         break
 
 
-                for trc_k in range(evc,evc+100):
-                    if f_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
+                for trc_k in range(evc,evc+peak_interval):
+                    if mf_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
                         trc20t = trc_k
                         break
 
-                for trc_k in range(evc,evc+100):
-                    if fscI[trc_k] <= trc0 + 0.50*(trc100-trc0):
+                for trc_k in range(evc,evc+peak_interval):
+                    if mf_sc_data[trc_k] <= trc0 + 0.50*(trc100-trc0):
                         trc50t = trc_k
                         break
 
                 for trc_k in range(trc20t,trc100t):
-                    if f_sc_data[trc_k] <= trc0 + 0.80*(trc100-trc0):
+                    if mf_sc_data[trc_k] <= trc0 + 0.80*(trc100-trc0):
                         trc80t = trc_k
                         break
             except:
@@ -306,41 +319,41 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
             rt20.append(trc20t*1000.0/sampling_rate)
             rt80.append(trc80t*1000.0/sampling_rate)
-            rt2080.append((trc80t-trc20t)*1000.0/sampling_rate) ## in ms for 10kHz sampling rate
+            rt2080.append((trc80t-trc20t)*1000.0/sampling_rate) ## in ms
             trcampl.append(trc100 - trc0)
 
             #decays
             
             tdc0 = trc100
-            tdc0t = trc100t
+            tdc0t = trc100t # peak is the start of the decay time calculation
             tdc100 = trc0
             tdc20t = tdc0t 
             tdc50t = tdc0t
-            tdc80t = tdc0t+200
-            tdc100t = 500
+            tdc80t = tdc0t+decay_interval
+            tdc100t = template_window
 
             try:
-                for tdc_k in range(tdc0t,tdc0t+200):
-                    if fscI[tdc_k] >= trc0:
+                for tdc_k in range(tdc0t,tdc0t+decay_interval):
+                    if mf_sc_data[tdc_k] >= trc0:
                         tdc100t = tdc_k
                         break
                 
-                for tdc_k in range(tdc0t,tdc0t+200):
-                    if fscI[tdc_k] >= tdc0 + 0.20*(tdc100-tdc0):
+                for tdc_k in range(tdc0t,tdc0t+decay_interval):
+                    if mf_sc_data[tdc_k] >= tdc0 + 0.20*(tdc100-tdc0):
                         tdc20t = tdc_k
                         break
 
-                for tdc_k in range(tdc0t,tdc0t+200):
-                    if fscI[tdc_k] >= tdc0 + 0.50*(tdc100-tdc0):
+                for tdc_k in range(tdc0t,tdc0t+decay_interval):
+                    if mf_sc_data[tdc_k] >= tdc0 + 0.50*(tdc100-tdc0):
                         tdc50t = tdc_k
                         break
 
                 for tdc_k in range(tdc20t,tdc100t):
-                    if fscI[tdc_k] >= tdc0 + 0.80*(tdc100-tdc0):
+                    if mf_sc_data[tdc_k] >= tdc0 + 0.80*(tdc100-tdc0):
                         tdc80t = tdc_k
                         break
             except:
-                print('decay-time not found for event @ t = '+str(evc/sampling_rate)+ ' s --set to max.')
+                print('decay-time not found for event @ t = '+str(evc/sampling_rate)+ ' s --set to measured maximum')
                 pass
 
             dt20.append(tdc20t*1000.0/sampling_rate)
