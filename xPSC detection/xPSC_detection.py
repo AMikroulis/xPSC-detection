@@ -283,13 +283,12 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             evwvmax.append(npy.max(f_sc_data[evc:evc+template_window])) 
             evwvrange.append(evwvmin[-1] - evwvmax[-1])
 
-            
-            trc0 = f_sc_data[evc]
             if scy.integrate.trapz(template) <= 0 :
                 mf_sc_data = f_sc_data
             else:
                 mf_sc_data = -f_sc_data
-                trc100 = npy.min(mf_sc_data[evc:evc+100])
+            trc0 = mf_sc_data[evc]
+            trc100 = npy.min(mf_sc_data[evc:evc+100])
             trc20t = evc
             trc50t = evc
             trc80t = evc+peak_interval
@@ -332,7 +331,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             tdc20t = tdc0t 
             tdc50t = tdc0t
             tdc80t = tdc0t+decay_interval
-            tdc100t = template_window
+            tdc100t = evc+template_window
 
             try:
                 for tdc_k in range(tdc0t,tdc0t+decay_interval):
