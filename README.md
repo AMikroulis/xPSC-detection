@@ -36,8 +36,7 @@ Result files are placed in the folder indicated by the user.<br/>
 A text file with time points, amplitudes, 20-80% rise/decay-times and half-width is generated for further processing.<br/>
 You may want to tweak the plots to your needs.<br/>
 <b>internal_output</b> is an array/list intentionally left free for the user to export anything they may want in their code after calling the function.<br/>
-All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs. Search for current, pA, I in here and change it to your measured quantity and units.
-
+All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs.
 
 #### Notes:
 There is a low-pass FIR filter in the beginning (can be cancelled or replaced at runtime), and a simple baseline correction (detrending – fitting a straight line between several equally-spaced points and subtracting them from the recording).<br/>
