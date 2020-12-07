@@ -33,7 +33,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     #
     # All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs. Search for current, pA, I in here and change it to your measured quantity and units.
     #
-    # Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes). Keep in mind if low on disk space.
+    # Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes). Keep in mind if low on disk space. It can be disabled by specifying skip_write = True.
     # MKL-enabled numpy is strongly recommended.
     # 
 
@@ -89,7 +89,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
     f_sc_data = npy.convolve(BL_sub, fir, 'valid')
     plt.plot(f_sc_data, color = '#402060')
-    plt.title('400Hz low-pass')
+    plt.title('low-pass')
     plt.xlabel('time (samples)')
     plt.ylabel('current (pA)')
     plt.savefig(file_path+'_filtered.png')
