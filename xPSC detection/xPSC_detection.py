@@ -234,6 +234,11 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
         decay_interval = template_window - peak_interval
         print('decay time limit set to ' + str(round(decay_interval * 1000 / sampling_rate, 3)) + ' ms (template duration limit)')
 
+    if scy.integrate.trapz(template) < 0 :
+        template_sign = -1
+    else:
+        template_sign = +1
+
     fulltracesd = npy.std(f_sc_data)
 
     for ccr_th in npy.arange(0.5,1,0.05):
@@ -283,35 +288,35 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             evwvmax.append(npy.max(f_sc_data[evc:evc+template_window])) 
             evwvrange.append(evwvmin[-1] - evwvmax[-1])
 
-            if scy.integrate.trapz(template) <= 0 :
-                mf_sc_data = f_sc_data
+            
+            trc0 = f_sc_data[evc]
+            if template_sign == -1:
+                trc100 = npy.min(f_sc_data[evc:evc+peak_interval])
             else:
-                mf_sc_data = -f_sc_data
-            trc0 = mf_sc_data[evc]
-            trc100 = npy.min(mf_sc_data[evc:evc+100])
+                trc100 = npy.max(f_sc_data[evc:evc+peak_interval])
             trc20t = evc
             trc50t = evc
             trc80t = evc+peak_interval
             trc100t = peak_interval
             try:
                 for trc_k in range(evc,evc+peak_interval):
-                    if mf_sc_data[trc_k] == trc100:
+                    if f_sc_data[trc_k] == trc100:
                         trc100t = trc_k
                         break
 
 
                 for trc_k in range(evc,evc+peak_interval):
-                    if mf_sc_data[trc_k] <= trc0 + 0.20*(trc100-trc0):
+                    if template_sign * (f_sc_data[trc_k] - (trc0 + 0.20*(trc100-trc0))) >= 0:
                         trc20t = trc_k
                         break
 
                 for trc_k in range(evc,evc+peak_interval):
-                    if mf_sc_data[trc_k] <= trc0 + 0.50*(trc100-trc0):
+                    if template_sign * (f_sc_data[trc_k] - (trc0 + 0.50*(trc100-trc0))) >= 0:
                         trc50t = trc_k
                         break
 
                 for trc_k in range(trc20t,trc100t):
-                    if mf_sc_data[trc_k] <= trc0 + 0.80*(trc100-trc0):
+                    if template_sign * (f_sc_data[trc_k] - (trc0 + 0.80*(trc100-trc0))) >= 0:
                         trc80t = trc_k
                         break
             except:
@@ -335,22 +340,22 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
             try:
                 for tdc_k in range(tdc0t,tdc0t+decay_interval):
-                    if mf_sc_data[tdc_k] >= trc0:
+                    if template_sign * (f_sc_data[tdc_k] - trc0) <= 0:
                         tdc100t = tdc_k
                         break
                 
                 for tdc_k in range(tdc0t,tdc0t+decay_interval):
-                    if mf_sc_data[tdc_k] >= tdc0 + 0.20*(tdc100-tdc0):
+                    if template_sign * (f_sc_data[tdc_k] - (tdc100 + 0.80*(tdc0-tdc100))) <= 0:
                         tdc20t = tdc_k
                         break
 
                 for tdc_k in range(tdc0t,tdc0t+decay_interval):
-                    if mf_sc_data[tdc_k] >= tdc0 + 0.50*(tdc100-tdc0):
+                    if template_sign * (f_sc_data[tdc_k] - (tdc100 + 0.50*(tdc0-tdc100))) <= 0:
                         tdc50t = tdc_k
                         break
 
                 for tdc_k in range(tdc20t,tdc100t):
-                    if mf_sc_data[tdc_k] >= tdc0 + 0.80*(tdc100-tdc0):
+                    if template_sign * (f_sc_data[tdc_k] - (tdc100 + 0.20*(tdc0-tdc100))) <= 0:
                         tdc80t = tdc_k
                         break
             except:
@@ -381,7 +386,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
             maxrange.append(npy.max(npy.asarray(evwvrange)))
             evwvp10.append(npy.percentile(npy.asarray(evwvrange),10))
             evwvp90.append(npy.percentile(npy.asarray(evwvrange),90))
-            sdrange.append( -2.5 * (npy.size(f_sc_data)/(npy.size(f_sc_data)-nevents_ * (template_window - 1))) * (fulltracesd - nevents_ * (template_window - 1) * npy.std(linconcat)/npy.size(f_sc_data)))
+            sdrange.append(template_sign * 2.5 * (npy.size(f_sc_data)/(npy.size(f_sc_data)-nevents_ * (template_window - 1))) * (fulltracesd - nevents_ * (template_window - 1) * npy.std(linconcat)/npy.size(f_sc_data)))
             evmedian.append(npy.median(npy.asarray(evwvrange)))
             nevents.append(nevents_)
             falsepos.append(fitfail)
