@@ -1,5 +1,7 @@
 ### xPSC-detection
 
+[![DOI](https://zenodo.org/badge/202560114.svg)](https://zenodo.org/badge/latestdoi/202560114)
+
 <i> Template correlation-based detection of postsynaptic currents.</i>
 
 The purpose of this function is to detect postsynaptic currents in a voltage-clamp recording, based on similarity to a template, allowing for batch processing of recordings.
