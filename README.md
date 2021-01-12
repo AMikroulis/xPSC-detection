@@ -1,7 +1,5 @@
 ### xPSC-detection
 
-[![DOI](https://zenodo.org/badge/202560114.svg)](https://zenodo.org/badge/latestdoi/202560114)
-
 <i> Template correlation-based detection of postsynaptic currents.</i>
 
 The purpose of this function is to detect postsynaptic currents in a voltage-clamp recording, based on similarity to a template, allowing for batch processing of recordings.
@@ -48,3 +46,5 @@ There is a Gaussian Mixture-based rejection of low-amplitude events. It can be c
 Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes, and can be disabled by specifying <b>skip_write = True</b>). Keep in mind if low on disk space.<br/>
 MKL-enabled numpy is strongly recommended.<br/>
 Anaconda versions on Windows 10 (and 7) run well. Not tested on Linux.<br/>
+
+[![DOI](https://zenodo.org/badge/202560114.svg)](https://zenodo.org/badge/latestdoi/202560114)
