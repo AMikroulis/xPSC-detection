@@ -48,3 +48,5 @@ MKL-enabled numpy is strongly recommended.<br/>
 Anaconda versions on Windows 10 (and 7) run well. Not tested on Linux.<br/>
 
 [![DOI](https://zenodo.org/badge/202560114.svg)](https://zenodo.org/badge/latestdoi/202560114)
+
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/AMikroulis/xPSC-detection)
