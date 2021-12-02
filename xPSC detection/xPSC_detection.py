@@ -203,7 +203,6 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
 
 
-    triglist = []
     nevents = []
     amplrange = []
     minrange = []
@@ -215,9 +214,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     evwvp10 = []
     evwvp90 = []
     falsepos = []
-    eventarray = []
     nevents = []
-    checkfit = []
     rt20 = []
     rt80 = []
     rt2080 = []
