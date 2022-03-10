@@ -87,7 +87,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     plt.title('baseline = 0')
     plt.savefig(file_path+'_baseline fix.png')
 
-    f_sc_data = npy.convolve(BL_sub, fir, 'valid')
+    f_sc_data = ssy.oaconvolve(BL_sub, fir, 'valid')
     plt.plot(f_sc_data, color = '#402060')
     plt.title('low-pass')
     plt.xlabel('time (samples)')
@@ -102,7 +102,7 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
     def correl(array1,vector2, winlength):
         unitkernel = npy.ones(winlength)
         array1sq = npy.square(array1)
-        array1ss = npy.convolve(array1sq, unitkernel,'valid')
+        array1ss = ssy.oaconvolve(array1sq, unitkernel,'valid')
         array1Eucl = npy.sqrt(array1ss)
         
         vector2Eucl = npy.sqrt(npy.sum(npy.square(vector2)))
