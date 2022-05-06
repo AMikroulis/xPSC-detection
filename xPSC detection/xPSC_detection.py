@@ -240,7 +240,6 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
     for ccr_th in npy.arange(0.5,1,0.05):
         linconcat = npy.array([])
-        eventwv = npy.zeros((template_window - 1))
         evwvmin = []
         evwvmax = []
         evwvrange = []
@@ -279,7 +278,6 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 
         for evc in detected.tolist():
             evc = int(evc)
-            eventwv = f_sc_data[evc:evc+template_window] 
             linconcat = npy.append(linconcat,f_sc_data[evc:evc+template_window]) 
             evwvmin.append(npy.min(f_sc_data[evc:evc+template_window])) 
             evwvmax.append(npy.max(f_sc_data[evc:evc+template_window])) 
