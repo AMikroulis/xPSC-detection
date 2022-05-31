@@ -594,4 +594,4 @@ def cc_detection(data_channel, template, file_name_base = '', sampling_rate = 10
 ### If you have any problems please try debug mode to see where the issue is.
 
 ### Copyright © Apostolos Mikroulis 2019-2022
-### This software is distributed under the terms of the Affero General Public License v3.
+### This software is distributed under the terms of the GNU Affero General Public License v3.
