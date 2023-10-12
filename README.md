@@ -24,7 +24,7 @@ It is using the correlation coefficient (normalized cross-correlation of the rec
     
 <b>peak_search_interval</b> & <b>decay_search_interval</b> are the limits (in ms) to look for peak </i>(from start of matched event)</i> and decay <i>(from peak of matched event)</i>.
 
-<b>filter_kernel</b> expects (nothing or 0 or) a floating-point array of coefficients for a FIR filter. Omitting it will not filter the data (ok, it will filter it but with a [1]), specifying 0 will make a 400Hz low-pass filter for 10kHz sampling rate.
+<b>filter_kernel</b> expects (nothing or 0 or) a floating-point array of coefficients for a FIR filter. Omitting it will not filter the data (ok, it will filter it but with a [1]), specifying 0 will make a 400Hz low-pass filter for 10 kHz sampling rate.
     
 <b>clustering_override</b> = True disables the additional Gaussian mixture classifier for low-amplitude rejection (likely noise) --- keep it set to True if you select events at a later stage with more criteria.
 
@@ -39,9 +39,9 @@ You may want to tweak the plots to your needs.<br/>
 All output assumes pA for the current recording. If you have a different unit you will need to adjust the names and labels of the graphs.
 
 #### Notes:
-There is a low-pass FIR filter in the beginning (can be cancelled or replaced at runtime), and a simple baseline correction (detrending – fitting a straight line between several equally-spaced points and subtracting them from the recording).<br/>
+There is a low-pass FIR filter in the beginning (can be canceled or replaced at runtime), and a simple baseline correction (detrending – fitting a straight line between several equally-spaced points and subtracting them from the recording).<br/>
 There is a percentile-based exclusion of high-amplitude events; no way to cancel at runtime – has to be disabled in the code, if not needed.<br/>
-There is a Gaussian Mixture-based rejection of low-amplitude events. It can be cancelled at runtime. Or repurposed if needed.<br/>
+There is a Gaussian Mixture-based rejection of low-amplitude events. It can be canceled at runtime. Or repurposed if needed.<br/>
 
 Output takes a lot of space (1 full 16-bit recording for each correlation coefficient cut-off – this is just for monitoring purposes, and can be disabled by specifying <b>skip_write = True</b>). Keep in mind if low on disk space.<br/>
 MKL-enabled numpy is strongly recommended.<br/>
@@ -49,4 +49,3 @@ Anaconda versions on Windows 10 (and 7) run well. Not tested on Linux.<br/>
 
 [![DOI](https://zenodo.org/badge/202560114.svg)](https://zenodo.org/badge/latestdoi/202560114)
 
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/AMikroulis/xPSC-detection)
